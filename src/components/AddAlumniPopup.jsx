@@ -24,7 +24,7 @@ function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Simulasi validasi sederhana
-    const allFieldsFilled = Object.values(formData).every(value => value.trim() !== '');
+    const allFieldsFilled = Object.values(formData).every((value) => value.trim() !== '');
 
     if (!allFieldsFilled) {
       alert('Mohon lengkapi semua data.');

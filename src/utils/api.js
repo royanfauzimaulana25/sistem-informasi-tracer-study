@@ -1,7 +1,7 @@
 /**
  * API Service Module
  *
- * Module ini menyediakan fungsi-fungsi untuk berinteraksi dengan Notes API Dicoding.
+ * Module ini menyediakan fungsi-fungsi untuk berinteraksi dengan Tracer Study SMA API.
  * Menggunakan Axios sebagai HTTP client dengan automatic token authentication.
  *
  * @author Your Name
@@ -10,8 +10,8 @@
 
 import axios from 'axios';
 
-// Base URL untuk API Dicoding Notes
-const BASE_URL = 'https://notes-api.dicoding.dev/v1';
+// Base URL untuk Tracer Study SMA API
+const BASE_URL = 'http://localhost:8000';
 
 /**
  * Instance Axios yang dikonfigurasi dengan base URL dan header default
@@ -24,58 +24,27 @@ const api = axios.create({
 });
 
 /**
- * Mengambil access token dari localStorage
- * @returns {string|null} Access token atau null jika tidak ada
- */
-function getAccessToken() {
-  return localStorage.getItem('accessToken');
-}
-
-/**
- * Menyimpan access token ke localStorage
- * @param {string} accessToken - Token akses yang akan disimpan
- * @returns {void}
- */
-function putAccessToken(accessToken) {
-  return localStorage.setItem('accessToken', accessToken);
-}
-
-/**
- * Interceptor untuk menambahkan Authorization header secara otomatis
- * pada setiap request yang menggunakan instance api
- */
-api.interceptors.request.use(
-  (config) => {
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-/**
  * Melakukan login pengguna
  * @param {Object} credentials - Kredensial login
- * @param {string} credentials.email - Email pengguna
+ * @param {string} credentials.username - Username pengguna
  * @param {string} credentials.password - Password pengguna
  * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
  * @example
- * const result = await login({ email: 'user@example.com', password: 'password123' });
+ * const result = await login({ username: 'admin', password: 'password123' });
  * if (!result.error) {
- *   console.log('Login berhasil:', result.data);
+ *   console.log('Login_Page berhasil:', result.data);
  * }
  */
 async function login({ email, password }) {
   try {
     const response = await api.post('/login', { email, password });
-    return { error: false, data: response.data.data };
+    if (response.status === 200) {
+      putUserInfo(response.data.data.nama);
+      return { error: false, data: response.data.data.nama };
+    }
   } catch (error) {
-    if (error.response && error.response.data && error.response.data.message) {
-      alert(error.response.data.message);
+    if (error.response) {
+      alert(error.response.data);
     } else {
       alert('Terjadi kesalahan saat login.');
     }
@@ -84,202 +53,244 @@ async function login({ email, password }) {
 }
 
 /**
- * Mendaftarkan pengguna baru
- * @param {Object} userData - Data pengguna baru
- * @param {string} userData.name - Nama lengkap pengguna
- * @param {string} userData.email - Email pengguna
- * @param {string} userData.password - Password pengguna
- * @returns {Promise<Object>} Object dengan property error (boolean)
+ * Memeriksa data alumni berdasarkan NISN, NIS, NIK, dan tanggal lahir
+ * @param {Object} data - Data alumni yang akan diperiksa
+ * @param {string} data.nisn - NISN alumni
+ * @param {string} data.nis - NIS alumni
+ * @param {string} data.nik - NIK alumni
+ * @param {string} data.tanggal_lahir - Tanggal lahir alumni (format: YYYY-MM-DD)
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
  * @example
- * const result = await register({
- *   name: 'John Doe',
- *   email: 'john@example.com',
- *   password: 'password123'
+ * const result = await checkAlumni({
+ *   nisn: '1234567890',
+ *   nis: '123456',
+ *   nik: '1234567890123456',
+ *   tanggal_lahir: '2000-01-01'
  * });
  * if (!result.error) {
- *   console.log('Registrasi berhasil');
+ *   console.log('Data alumni ditemukan:', result.data);
  * }
  */
-async function register({ name, email, password }) {
+async function checkAlumni({ nisn, nis, nik, tanggal_lahir }) {
   try {
-    await api.post('/register', { name, email, password });
-    return { error: false };
+    const response = await api.post('/alumni/check', { nisn, nis, nik, tanggal_lahir });
+    return { error: false, data: response.data };
   } catch (error) {
-    if (error.response && error.response.data && error.response.data.message) {
-      alert(error.response.data.message);
-    } else {
-      alert('Terjadi kesalahan saat pendaftaran.');
+    if (error.response && error.response.status === 404) {
+      return { error: true, message: 'Alumni tidak ditemukan', data: null };
     }
-    return { error: true };
+    return { error: true, message: 'Terjadi kesalahan saat memeriksa data alumni', data: null };
   }
 }
 
 /**
- * Mengambil data pengguna yang sedang login
+ * Mengirimkan data tracer study
+ * @param {Object} data - Data tracer study
+ * @param {number} data.id_alumni - ID alumni
+ * @param {string} data.alamat_email - Alamat email alumni
+ * @param {string} data.no_telepon - Nomor telepon alumni
+ * @param {string} data.status - Status alumni (e.g., "MELANJUTKAN", "BEKERJA")
+ * @param {string} data.perguruan_tinggi - Nama perguruan tinggi (jika melanjutkan)
+ * @param {string} data.program_studi - Nama program studi (jika melanjutkan)
+ * @param {string} data.sumber_biaya - Sumber biaya pendidikan (jika melanjutkan)
+ * @param {number} data.tahun_masuk - Tahun masuk perguruan tinggi (jika melanjutkan)
+ * @param {Object} data.jawaban_kuesioner - Jawaban kuesioner dalam format {pertanyaan: jawaban}
+ * @param {File} buktiKuliah - File bukti kuliah (jika melanjutkan)
  * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
  * @example
- * const result = await getUserLogged();
+ * const result = await submitTracer({
+ *   id_alumni: 1,
+ *   alamat_email: 'alumni@example.com',
+ *   no_telepon: '08123456789',
+ *   status: 'MELANJUTKAN',
+ *   perguruan_tinggi: 'Universitas Indonesia',
+ *   program_studi: 'Teknik Informatika',
+ *   sumber_biaya: 'Orang Tua',
+ *   tahun_masuk: 2022,
+ *   jawaban_kuesioner: {
+ *     'Apakah anda puas dengan pendidikan di SMA?': 'Sangat Puas'
+ *   }
+ * }, buktiKuliahFile);
  * if (!result.error) {
- *   console.log('Data pengguna:', result.data);
+ *   console.log('Data tracer berhasil dikirim:', result.data);
  * }
  */
-async function getUserLogged() {
+async function submitTracer(data, buktiKuliah) {
   try {
-    const response = await api.get('/users/me');
-    return { error: false, data: response.data.data };
+    const formData = new FormData();
+    formData.append('bukti_kuliah', buktiKuliah);
+
+    // Convert data object to JSON string and append to form data
+    const dataBlob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    formData.append('data', dataBlob);
+
+    const response = await api.post('/tracer/submit', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return { error: false, data: response.data };
   } catch (error) {
-    // Tangani kesalahan, misalnya token tidak valid
+    return { error: true, message: 'Terjadi kesalahan saat mengirim data tracer study', data: null };
+  }
+}
+
+/**
+ * Mengambil data referensi perguruan tinggi dan program studi
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
+ * @example
+ * const result = await getPerguruanTinggiProdi();
+ * if (!result.error) {
+ *   console.log('Data perguruan tinggi dan prodi:', result.data);
+ * }
+ */
+async function getPerguruanTinggiProdi() {
+  try {
+    const response = await api.get('/referensi/perguruan-tinggi');
+    return { error: false, data: response.data };
+  } catch (error) {
     return { error: true, data: null };
   }
 }
 
 /**
- * Menambahkan catatan baru
- * @param {Object} noteData - Data catatan baru
- * @param {string} noteData.title - Judul catatan
- * @param {string} noteData.body - Isi catatan
+ * Mengambil data referensi kuesioner dan jawaban
  * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
  * @example
- * const result = await addNote({
- *   title: 'Catatan Penting',
- *   body: 'Ini adalah isi catatan yang sangat penting.'
+ * const result = await getKuesioner();
+ * if (!result.error) {
+ *   console.log('Data kuesioner:', result.data);
+ * }
+ */
+async function getKuesioner() {
+  try {
+    const response = await api.get('/referensi/kuesioner');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Mengambil data referensi status
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
+ * @example
+ * const result = await getStatus();
+ * if (!result.error) {
+ *   console.log('Data status:', result.data);
+ * }
+ */
+async function getStatus() {
+  try {
+    const response = await api.get('/referensi/status');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Mengambil statistik alumni per tahun
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
+ * @example
+ * const result = await getStatistikAlumni();
+ * if (!result.error) {
+ *   console.log('Statistik alumni:', result.data);
+ * }
+ */
+async function getStatistikAlumni() {
+  try {
+    const response = await api.get('/statistik/alumni');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Mengambil statistik jawaban kuesioner per tahun
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
+ * @example
+ * const result = await getStatistikKuesioner();
+ * if (!result.error) {
+ *   console.log('Statistik kuesioner:', result.data);
+ * }
+ */
+async function getStatistikKuesioner() {
+  try {
+    const response = await api.get('/statistik/kuesioner');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Membuat data alumni baru
+ * @param {Object} data - Data alumni baru
+ * @param {string} data.nisn - NISN alumni
+ * @param {string} data.nis - NIS alumni
+ * @param {string} data.nik - NIK alumni
+ * @param {string} data.nama_siswa - Nama alumni
+ * @param {string} data.tanggal_lahir - Tanggal lahir alumni (format: YYYY-MM-DD)
+ * @param {number} data.tahun_lulus - Tahun lulus alumni
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
+ * @example
+ * const result = await createAlumni({
+ *   nisn: '1234567890',
+ *   nis: '123456',
+ *   nik: '1234567890123456',
+ *   nama_siswa: 'John Doe',
+ *   tanggal_lahir: '2000-01-01',
+ *   tahun_lulus: 2022
  * });
  * if (!result.error) {
- *   console.log('Catatan berhasil ditambahkan:', result.data);
+ *   console.log('Alumni berhasil dibuat:', result.data);
  * }
  */
-async function addNote({ title, body }) {
+async function createAlumni(data) {
   try {
-    const response = await api.post('/notes', { title, body });
-    return { error: false, data: response.data.data };
+    const response = await api.post('/alumni/create', data);
+    return { error: false, data: response.data };
   } catch (error) {
-    return { error: true, data: null };
+    return { error: true, message: 'Terjadi kesalahan saat membuat data alumni', data: null };
   }
 }
 
 /**
- * Mengambil semua catatan aktif (tidak diarsipkan)
- * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
- * @example
- * const result = await getActiveNotes();
- * if (!result.error) {
- *   console.log('Catatan aktif:', result.data);
- * }
- */
-async function getActiveNotes() {
-  try {
-    const response = await api.get('/notes');
-    return { error: false, data: response.data.data };
-  } catch (error) {
-    return { error: true, data: null };
-  }
-}
-
-/**
- * Mengambil semua catatan yang diarsipkan
- * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
- * @example
- * const result = await getArchivedNotes();
- * if (!result.error) {
- *   console.log('Catatan arsip:', result.data);
- * }
- */
-async function getArchivedNotes() {
-  try {
-    const response = await api.get('/notes/archived');
-    return { error: false, data: response.data.data };
-  } catch (error) {
-    return { error: true, data: null };
-  }
-}
-
-/**
- * Mengambil detail catatan berdasarkan ID
- * @param {string} id - ID catatan yang akan diambil
+ * Mengambil detail alumni berdasarkan ID
+ * @param {number} id - ID alumni
  * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
  * @example
- * const result = await getNote('note-123');
+ * const result = await getDetailAlumni(1);
  * if (!result.error) {
- *   console.log('Detail catatan:', result.data);
+ *   console.log('Detail alumni:', result.data);
  * }
  */
-async function getNote(id) {
+async function getDetailAlumni(id) {
   try {
-    const response = await api.get(`/notes/${id}`);
-    return { error: false, data: response.data.data };
+    const response = await api.get(`/alumni/${id}`);
+    return { error: false, data: response.data };
   } catch (error) {
     return { error: true, data: null };
   }
 }
 
-/**
- * Mengarsipkan catatan berdasarkan ID
- * @param {string} id - ID catatan yang akan diarsipkan
- * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
- * @example
- * const result = await archiveNote('note-123');
- * if (!result.error) {
- *   console.log('Catatan berhasil diarsipkan:', result.data);
- * }
- */
-async function archiveNote(id) {
-  try {
-    const response = await api.post(`/notes/${id}/archive`);
-    return { error: false, data: response.data.data };
-  } catch (error) {
-    return { error: true, data: null };
-  }
-}
-
-/**
- * Membatalkan arsip catatan berdasarkan ID
- * @param {string} id - ID catatan yang akan dibatalkan arsipnya
- * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
- * @example
- * const result = await unarchiveNote('note-123');
- * if (!result.error) {
- *   console.log('Catatan berhasil dikembalikan dari arsip:', result.data);
- * }
- */
-async function unarchiveNote(id) {
-  try {
-    const response = await api.post(`/notes/${id}/unarchive`);
-    return { error: false, data: response.data.data };
-  } catch (error) {
-    return { error: true, data: null };
-  }
-}
-
-/**
- * Menghapus catatan berdasarkan ID
- * @param {string} id - ID catatan yang akan dihapus
- * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
- * @example
- * const result = await deleteNote('note-123');
- * if (!result.error) {
- *   console.log('Catatan berhasil dihapus:', result.data);
- * }
- */
-async function deleteNote(id) {
-  try {
-    const response = await api.delete(`/notes/${id}`);
-    return { error: false, data: response.data.data };
-  } catch (error) {
-    return { error: true, data: null };
-  }
+function putUserInfo(userInfo) {
+  return localStorage.setItem('username', userInfo);
 }
 
 export {
-  getAccessToken,
-  putAccessToken,
+  putUserInfo,
   login,
-  register,
-  getUserLogged,
-  addNote,
-  getActiveNotes,
-  getArchivedNotes,
-  getNote,
-  archiveNote,
-  unarchiveNote,
-  deleteNote,
+  checkAlumni,
+  submitTracer,
+  getPerguruanTinggiProdi,
+  getKuesioner,
+  getStatus,
+  getStatistikAlumni,
+  getStatistikKuesioner,
+  createAlumni,
+  getDetailAlumni,
 };

@@ -5,3 +5,11 @@
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
+
+/* --- Tambahan untuk background Hero Section --- */
+.hero-background {
+    background-image: url('../../public/Background.png'); /* Sesuaikan path */
+    background-size: cover; /* Menutupi seluruh area tanpa terulang */
+    background-position: center; /* Memposisikan gambar di tengah */
+    background-repeat: no-repeat; /* Mencegah gambar terulang */
+}

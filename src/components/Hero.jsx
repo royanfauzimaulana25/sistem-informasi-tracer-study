@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function Hero() {
   return (
-    <section className='relative bg-white py-16 md:py-24 overflow-hidden'>
+    <section className='relative  py-16 md:py-24 overflow-hidden'>
       <div className='container mx-auto flex flex-col md:flex-row items-center justify-between px-4'>
 
         {/* Konten Teks */}

@@ -1,11 +1,7 @@
-// src/pages/DashboardPage.jsx
 import React, { useState } from 'react';
-import Navigation from '../components/Navigation';
 import DashboardCard from '../components/DashboardCard';
 import DropdownFilter from '../components/DropdownFilter';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { FaUserCircle } from 'react-icons/fa'; // Ikon profil
-import Logo from '/Logo-SMAN4.png';
 
 function Dashboard() {
   const [tahunLulusFilter, setTahunLulusFilter] = useState('');
@@ -14,9 +10,9 @@ function Dashboard() {
   // Data dummy untuk kartu statistik
   const stats = {
     jumlahSiswaLulus: 854,
-    persentaseTracerStudy: "85%",
+    persentaseTracerStudy: '85%',
     totalResponden: 726, // 85% dari 854
-    melanjutkanPendidikan: "75%",
+    melanjutkanPendidikan: '75%',
     jumlahMelanjutkanPendidikan: 544, // 75% dari 726
   };
 
@@ -50,19 +46,19 @@ function Dashboard() {
   const handleTahunLulusChange = (e) => {
     setTahunLulusFilter(e.target.value);
     // Di sini Anda bisa memicu pengambilan data grafik baru berdasarkan filter
-    console.log("Filter Tahun Lulus:", e.target.value);
+    console.log('Filter Tahun Lulus:', e.target.value);
   };
 
   const handleStatusAlumniChange = (e) => {
     setStatusAlumniFilter(e.target.value);
     // Di sini Anda bisa memicu pengambilan data grafik baru berdasarkan filter
-    console.log("Filter Status Alumni:", e.target.value);
+    console.log('Filter Status Alumni:', e.target.value);
   };
 
   return (
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8">
-        {/* Kartu Statistik */}
+        {/* Card */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <DashboardCard
             title="Jumlah Siswa Lulus"

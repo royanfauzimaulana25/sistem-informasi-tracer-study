@@ -6,12 +6,12 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 
 // Page Components
-import Home from './pages/Home';
-import Quiz from './pages/Quiz';
-import QuizDetail from './pages/QuizDetail';
+import HomePage from './pages/HomePage.jsx';
+import QuizPage from './pages/QuizPage.jsx';
+import QuizDetailPage from './pages/QuizDetailPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import Dashboard from './pages/Dashboard';
-import Alumni from './pages/Alumni';
+import DashboardPage from './pages/DashboardPage.jsx';
+import AlumniPage from './pages/AlumniPage.jsx';
 
 // Utils
 
@@ -32,6 +32,7 @@ function App() {
     setAuthedUser(user);
     navigate('/dashboard');
   };
+
   const onLogout = () => {
     setAuthedUser(null);
     localStorage.removeItem('username');
@@ -50,10 +51,10 @@ function App() {
         </header>
         <main className='container mx-auto px-4 py-12'>
           <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/questionnaire' element={<Quiz />} />
-            <Route path='/questionnaire/:id' element={<QuizDetail />} />
-            <Route path='/*' element={<LoginPage onLoginSuccess={onLoginSuccess}/>} />
+            <Route path='/' element={<HomePage />} />
+            <Route path='/questionnaire' element={<QuizPage />} />
+            <Route path='/questionnaire/:id' element={<QuizDetailPage />} />
+            <Route path='/*' element={<LoginPage />} />
           </Routes>
         </main>
       </div>
@@ -69,9 +70,9 @@ function App() {
       <main className='container mx-auto px-4 py-12'>
         <Routes>
           <Route path='*' element={<p>404 Not Found</p>} />
-          <Route path='/' element={<Dashboard />} />
-          <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/alumni' element={<Alumni />} />
+          <Route path='/' element={<DashboardPage />} />
+          <Route path='/dashboard' element={<DashboardPage />} />
+          <Route path='/alumni' element={<AlumniPage />} />
         </Routes>
       </main>
     </div>

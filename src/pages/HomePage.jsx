@@ -2,10 +2,10 @@ import React from 'react';
 import Hero from '../components/Hero';
 
 
-function Home() {
+function HomePage() {
   return(
     <Hero />
   )
 }
 
-export default Home;
+export default HomePage;

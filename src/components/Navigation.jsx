@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 // Icons
 
 // Asset
-import Logo from '../../public/Logo-SMAN4.png';
+import Logo from '/Logo-SMAN4.png';
 import { FaUserCircle } from 'react-icons/fa';
 
 // Components

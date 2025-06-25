@@ -191,6 +191,24 @@ async function getStatus() {
 }
 
 /**
+ * Mengambil data referensi jawaban
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
+ * @example
+ * const result = await getJawaban();
+ * if (!result.error) {
+ *   console.log('Data status:', result.data);
+ * }
+ */
+async function getJawaban() {
+  try {
+    const response = await api.get('/referensi/jawaban');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
  * Mengambil statistik alumni per tahun
  * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Array|null)
  * @example
@@ -202,7 +220,8 @@ async function getStatus() {
 async function getStatistikAlumni() {
   try {
     const response = await api.get('/statistik/alumni');
-    return { error: false, data: response.data };
+    // console.log(response.data);
+    return { error: false, data: response.data.data };
   } catch (error) {
     return { error: true, data: null };
   }
@@ -246,7 +265,7 @@ async function getStatistikKuesioner() {
  *   tahun_lulus: 2022
  * });
  * if (!result.error) {
- *   console.log('Alumni berhasil dibuat:', result.data);
+ *   console.log('AlumniPage berhasil dibuat:', result.data);
  * }
  */
 async function createAlumni(data) {
@@ -289,6 +308,7 @@ export {
   getPerguruanTinggiProdi,
   getKuesioner,
   getStatus,
+  getJawaban,
   getStatistikAlumni,
   getStatistikKuesioner,
   createAlumni,

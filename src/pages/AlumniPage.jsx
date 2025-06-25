@@ -6,7 +6,7 @@ import DetailAlumni from '../components/DetailAlumni';
 import AddAlumniPopup from '../components/AddAlumniPopup';
 import UploadCsvPopup from '../components/UploadCSVPopup'; // Impor popup Upload CSV
 
-function Alumni() {
+function AlumniPage() {
   const [tahunLulusFilter, setTahunLulusFilter] = useState('');
   const [statusAlumniFilter, setStatusAlumniFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,7 +31,7 @@ function Alumni() {
         nisn: `NISN${20000 + i}`,
         tanggalLahir: `2002-0${(i % 12) + 1}-0${(i % 28) + 1}`,
         nik: `NIK${300000 + i}`,
-        namaSiswa: `Alumni ${i}`,
+        namaSiswa: `AlumniPage ${i}`,
         tahunLulus: 2019 + (i % 3),
         statusSiswa: ['Lanjut Pendidikan', 'Bekerja', 'Wirausaha'][i % 3],
         statusKuesioner: (i % 2 === 0) ? 'Sudah Mengisi' : 'Belum Mengisi',
@@ -123,7 +123,7 @@ function Alumni() {
     setIsAddAlumniPopupOpen(false);
   };
   const handleAddAlumniSubmit = (newAlumniData) => {
-    console.log('Data Alumni Baru Diterima:', newAlumniData);
+    console.log('Data AlumniPage Baru Diterima:', newAlumniData);
     alert('Data alumni berhasil ditambahkan (simulasi)!');
     setAllAlumniData((prevData) => [
       ...prevData,
@@ -194,7 +194,7 @@ function Alumni() {
             className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md shadow-lg transition duration-300 flex items-center justify-center space-x-2"
           >
             <FaUserPlus className="text-xl" />
-            <span>Tambah Data Alumni</span>
+            <span>Tambah Data AlumniPage</span>
           </button>
           {/* Tombol baru untuk Upload CSV */}
           <button
@@ -209,7 +209,7 @@ function Alumni() {
           <div className="relative flex-grow flex items-center">
             <input
               type="text"
-              placeholder="Cari Alumni (NISN / Nama)"
+              placeholder="Cari AlumniPage (NISN / Nama)"
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full py-3 pl-4 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 transition duration-200"
@@ -229,7 +229,7 @@ function Alumni() {
               className="w-full md:w-1/3"
             />
             <DropdownFilter
-              label="Status Alumni"
+              label="Status AlumniPage"
               options={statusAlumniOptions}
               selectedValue={statusAlumniFilter}
               onChange={null}
@@ -238,7 +238,7 @@ function Alumni() {
           </div>
         </div>
 
-        {/* Tabel Data Alumni */}
+        {/* Tabel Data AlumniPage */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -353,4 +353,4 @@ function Alumni() {
   );
 };
 
-export default Alumni;
+export default AlumniPage;

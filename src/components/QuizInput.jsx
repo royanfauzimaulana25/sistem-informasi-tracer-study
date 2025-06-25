@@ -1,6 +1,7 @@
 // React Modules
 import React from 'react';
 import PropTypes from 'prop-types';
+import useInput from '../hooks/useInput';
 
 // Icons
 
@@ -11,24 +12,23 @@ import FormInput from '../components/FormInput'; // Impor komponen FormInput
 import NotificationPopup from '../components/NotificationPopup'; // Impor komponen popup
 
 
-function QuizInput() {
-  const [formData, setFormData] = React.useState({
+function QuizInput({ onCheckAlumni }) {
+  const [isPopupOpen, setIsPopupOpen] = React.useState(false);
+  const [alumniData, setAlumniData] = React.useState({
     nis: '',
     nisn: '',
-    tanggalLahir: '',
+    tanggal_lahir: '',
     nik: ''
   });
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({
+  const eventHandleChangeAlumniData = (event) => {
+    const { id, value } = event.target;
+    setAlumniData((prevData) => ({
       ...prevData,
       [id]: value
     }));
   };
-
   // Popup Components
-  const [isPopupOpen, setIsPopupOpen] = React.useState(false);
   const handleClosePopup = () => {
     setIsPopupOpen(false);
     // Di sini Anda bisa menambahkan logika lain setelah popup ditutup,
@@ -36,22 +36,9 @@ function QuizInput() {
     console.log('Popup ditutup dan tombol Lanjutkan diklik!');
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // --- Simulasi Validasi Data ---
-    // Dalam aplikasi nyata, Anda akan mengirim data ini ke backend
-    // dan menunggu respons apakah data ditemukan/valid.
-    // Contoh sederhana: Anggap data valid jika semua input tidak kosong.
-    const allFieldsFilled = Object.values(formData).every(value => value.trim() !== '');
-
-    if (allFieldsFilled) {
-      console.log('Data yang dikirim:', formData);
-      // Jika data ditemukan/valid, tampilkan popup
-      setIsPopupOpen(true);
-    } else {
-      alert('Mohon lengkapi semua data sebelum melanjutkan.');
-    }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onCheckAlumni(alumniData);
   };
 
 
@@ -70,8 +57,8 @@ function QuizInput() {
               id="nis"
               type="text"
               placeholder="Masukkan NIS Anda"
-              value={formData.nis}
-              onChange={handleChange}
+              value={alumniData.nis}
+              onChange={eventHandleChangeAlumniData}
             />
 
             {/* NISN */}
@@ -80,17 +67,17 @@ function QuizInput() {
               id="nisn"
               type="text"
               placeholder="Masukkan NISN Anda"
-              value={formData.nisn}
-              onChange={handleChange}
+              value={alumniData.nisn}
+              onChange={eventHandleChangeAlumniData}
             />
 
             {/* Tanggal Lahir */}
             <FormInput
               label="Tanggal Lahir"
-              id="tanggalLahir"
+              id="tanggal_lahir"
               type="date" // Menggunakan type="date" untuk picker tanggal
-              value={formData.tanggalLahir}
-              onChange={handleChange}
+              value={alumniData.tanggal_lahir}
+              onChange={eventHandleChangeAlumniData}
             />
 
             {/* NIK */}
@@ -99,8 +86,8 @@ function QuizInput() {
               id="nik"
               type="text" // NIK bisa juga number, tapi text lebih fleksibel untuk menghindari masalah leading zero
               placeholder="Masukkan NIK Anda"
-              value={formData.nik}
-              onChange={handleChange}
+              value={alumniData.nik}
+              onChange={eventHandleChangeAlumniData}
             />
           </div>
 

@@ -63,7 +63,7 @@ function DetailAlumni({ isOpen, onClose, alumniData }) {
               <p className="font-medium">No Telepon / HP</p>
               <p className="text-gray-900 font-semibold">{displayValue(alumniData.nomorTelepon)}</p>
             </div>
-            <div className="md:col-span-2"> {/* Span 2 kolom untuk Status Alumni */}
+            <div className="md:col-span-2"> {/* Span 2 kolom untuk Status AlumniPage */}
               <p className="font-medium">Status Alumni</p>
               <p className="text-gray-900 font-semibold">{displayValue(alumniData.statusSiswa)}</p>
             </div>

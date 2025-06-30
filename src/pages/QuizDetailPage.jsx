@@ -1,55 +1,43 @@
 import React from 'react';
-import QuizInputDetail from '../components/QuizInputDetail';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getDetailAlumni } from '../utils/api';
+import QuizDetailInput from '../components/QuizDetailInput';
+import { useParams } from 'react-router-dom';
+import { getTracerStatus } from '../utils/api';
 
 function QuizDetailPage() {
   const { id } = useParams();
-  const [alumniData, setAlumniData] = React.useState(null);
+  const [tracerStatus, setTracerStatus] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
-  const navigate = useNavigate();
-
   React.useEffect(() => {
-    getDetailAlumni(id).then(({ error, data }) => {
+    getTracerStatus(id).then(({ error, data }) => {
+      console.log(id);
       if (!error) {
-        setAlumniData(data);
-      } else {
-        setAlumniData(null);
+        setTracerStatus(data.is_filled);
       }
-      setLoading(false);
-    }).catch(() => {
-      setAlumniData(null);
-      setLoading(false);
     });
+    setLoading(false);
   }, [id]);
 
-  // Handle navigation when alumni has already filled the questionnaire
-  React.useEffect(() => {
-    if (!loading && alumniData?.alumni?.is_filled) {
-      alert('Alumni Sudah Isi Kuesioner');
-      navigate('/questionnaire/');
-    }
-  }, [loading, alumniData, navigate]);
-
+  // Kembalikan Element Loading saat proses fethcing
   if (loading) {
-    return <p>Loading</p>;
-  }
-
-  if (!alumniData || !alumniData.alumni) {
     return (
-      <p>Alumni Tidak Ditemukan / Halaman Tidak Ditemukan</p>
+      <p>Loading...</p>
     );
   }
 
-  // Don't render the form if alumni has already filled it
-  if (alumniData.alumni?.is_filled) {
-    return <p>Redirecting...</p>;
+  // Kembalikan Element 'Alumni sudah mengisi tracer'
+  if (tracerStatus === true) {
+    return (
+      <>
+        <p>Alumni Sudah Mengisi Tracer Study</p>
+        <a href="/">Kembali ke Halaman Beranda</a>
+      </>
+    );
   }
 
   return (
     <>
-      <QuizInputDetail dataAlumni={alumniData}/>
+      <QuizDetailInput idAlumni={id}/>
     </>
   );
 }

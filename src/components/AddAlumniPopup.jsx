@@ -1,16 +1,15 @@
-// src/components/AddAlumniPopup.jsx
 import React, { useState } from 'react';
-import { FaTimes } from 'react-icons/fa'; // Ikon silang untuk menutup
-import FormInput from './FormInput'; // Gunakan FormInput untuk input teks biasa
+import { FaTimes } from 'react-icons/fa';
+import FormInput from './FormInput';
 
 function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     nis: '',
     nisn: '',
-    tanggalLahir: '',
+    tanggal_lahir: '',
     nik: '',
-    namaSiswa: '',
-    tahunLulus: ''
+    nama_siswa: '',
+    tahun_lulus: ''
   });
 
   const handleChange = (e) => {
@@ -23,35 +22,33 @@ function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulasi validasi sederhana
-    const allFieldsFilled = Object.values(formData).every((value) => value.trim() !== '');
+
+    const allFieldsFilled = Object.values(formData).every(
+      (value) => value.toString().trim() !== ''
+    );
 
     if (!allFieldsFilled) {
       alert('Mohon lengkapi semua data.');
       return;
     }
 
-    onSubmit(formData); // Kirim data ke parent component
-    setFormData({ // Reset form setelah submit
+    onSubmit(formData);
+
+    setFormData({
       nis: '',
       nisn: '',
-      tanggalLahir: '',
+      tanggal_lahir: '',
       nik: '',
-      namaSiswa: '',
-      tahunLulus: ''
+      nama_siswa: '',
+      tahun_lulus: ''
     });
   };
 
-  if (!isOpen) {
-    return null; // Tidak merender apa-apa jika popup tidak terbuka
-  }
+  if (!isOpen) return null;
 
   return (
-    // Overlay latar belakang semi-transparan
     <div className="fixed inset-0 bg-[#00000059] flex items-center justify-center z-50 p-4">
-      {/* Container utama popup */}
       <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full relative">
-        {/* Tombol Tutup */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition duration-200"
@@ -70,6 +67,7 @@ function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
               placeholder="Masukkan NIS"
               value={formData.nis}
               onChange={handleChange}
+              required
             />
             <FormInput
               label="NISN (Nomor Induk Siswa Nasional)"
@@ -78,14 +76,15 @@ function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
               placeholder="Masukkan NISN"
               value={formData.nisn}
               onChange={handleChange}
+              required
             />
             <FormInput
               label="Tanggal Lahir"
-              id="tanggalLahir"
-              type="date" // Menggunakan type="date" untuk date picker
-              placeholder="Pilih Tanggal Lahir"
-              value={formData.tanggalLahir}
+              id="tanggal_lahir"
+              type="date"
+              value={formData.tanggal_lahir}
               onChange={handleChange}
+              required
             />
             <FormInput
               label="NIK (Nomor Induk Kependudukan)"
@@ -94,26 +93,31 @@ function AddAlumniPopup({ isOpen, onClose, onSubmit }) {
               placeholder="Masukkan NIK"
               value={formData.nik}
               onChange={handleChange}
+              required
+              minLength={16}
             />
             <FormInput
               label="Nama Siswa"
-              id="namaSiswa"
+              id="nama_siswa"
               type="text"
               placeholder="Masukkan Nama Siswa"
-              value={formData.namaSiswa}
+              value={formData.nama_siswa}
               onChange={handleChange}
+              required
             />
             <FormInput
               label="Tahun Lulus"
-              id="tahunLulus"
-              type="number" // Menggunakan type="number"
+              id="tahun_lulus"
+              type="number"
               placeholder="Masukkan Tahun Lulus"
-              value={formData.tahunLulus}
+              value={formData.tahun_lulus}
               onChange={handleChange}
+              required
+              min="2000"
+              max={new Date().getFullYear()}
             />
           </div>
 
-          {/* Tombol Tambah Data */}
           <div className="flex justify-center mt-8">
             <button
               type="submit"

@@ -11,7 +11,7 @@
 import axios from 'axios';
 
 // Base URL untuk Tracer Study SMA API
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = 'http://192.168.6.126:8000';
 
 /**
  * Instance Axios yang dikonfigurasi dengan base URL dan header default
@@ -118,13 +118,16 @@ async function checkAlumni({ nisn, nis, nik, tanggal_lahir }) {
 async function submitTracer(data, buktiKuliah) {
   try {
     const formData = new FormData();
-    formData.append('bukti_kuliah', buktiKuliah);
+    if (buktiKuliah){
+      formData.append('bukti_kuliah', buktiKuliah);
+    }
 
     // Convert data object to JSON string and append to form data
-    const dataBlob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    formData.append('data', dataBlob);
 
-    const response = await api.post('/tracer/submit', formData, {
+    formData.append('payload', JSON.stringify(data));
+    console.log(JSON.stringify(data));
+    console.log(buktiKuliah);
+    const response = await api.post('/questionnaire/submit', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -287,9 +290,81 @@ async function createAlumni(data) {
  *   console.log('Detail alumni:', result.data);
  * }
  */
-async function getDetailAlumni(id) {
+async function getQuestionnaireDetail(id) {
   try {
-    const response = await api.get(`/alumni/${id}`);
+    const response = await api.get(`/questionnaire/detail/${id}`);
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Mengambil Metadata Form Quesioner Detail
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
+ * @example
+ * const result = await getDetailAlumni(1);
+ * if (!result.error) {
+ *   console.log('Detail alumni:', result.data);
+ * }
+ */
+async function getMetadataForm(id) {
+  try {
+    const response = await api.get('/quesioner-metadata');
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Cek Status Tracer Studi
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
+ * @example
+ * const result = await getDetailAlumni(1);
+ * if (!result.error) {
+ *   console.log('Detail alumni:', result.data);
+ * }
+ */
+async function getTracerStatus(id) {
+  try {
+    const response = await api.get(`/tracer/status/${id}`);
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Get Program Study by Perguruan Tinggi
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
+ * @example
+ * const result = await getDetailAlumni(1);
+ * if (!result.error) {
+ *   console.log('Detail alumni:', result.data);
+ * }
+ */
+async function getProgramStudi(idPerguruanTinggi) {
+  try {
+    const response = await api.get(`/programStudi/${idPerguruanTinggi}`);
+    return { error: false, data: response.data };
+  } catch (error) {
+    return { error: true, data: null };
+  }
+}
+
+/**
+ * Get All Data Tracer Alumni
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null)
+ * @example
+ * const result = await getAllAlumni(1);
+ * if (!result.error) {
+ *   console.log('Detail alumni:', result.data);
+ * }
+ */
+async function getAllAlumni() {
+  try {
+    const response = await api.get(`/tracer/all`);
     return { error: false, data: response.data };
   } catch (error) {
     return { error: true, data: null };
@@ -312,5 +387,9 @@ export {
   getStatistikAlumni,
   getStatistikKuesioner,
   createAlumni,
-  getDetailAlumni,
+  getQuestionnaireDetail,
+  getMetadataForm,
+  getTracerStatus,
+  getProgramStudi,
+  getAllAlumni,
 };

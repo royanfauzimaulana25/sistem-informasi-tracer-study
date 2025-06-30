@@ -37,13 +37,13 @@ function UploadCsvPopup({ isOpen, onClose, onSubmitCsv }) {
       try {
         const csvString = event.target.result;
         // Parse CSV string into an array of objects
-        const lines = csvString.split('\n').filter(line => line.trim() !== ''); // Filter baris kosong
+        const lines = csvString.split('\n').filter((line) => line.trim() !== ''); // Filter baris kosong
         if (lines.length === 0) {
           setError('File CSV kosong atau tidak valid.');
           return;
         }
 
-        const headers = lines[0].split(',').map(header => header.trim());
+        const headers = lines[0].split(',').map((header) => header.trim());
         const data = [];
 
         for (let i = 1; i < lines.length; i++) {
@@ -105,15 +105,33 @@ function UploadCsvPopup({ isOpen, onClose, onSubmitCsv }) {
 
         {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
 
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6 gap-4 flex-wrap">
+          {/* Tombol Upload */}
           <button
             onClick={handleSubmit}
-            disabled={!selectedFile} // Disable jika tidak ada file terpilih
-            className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-12 rounded-md shadow-lg text-lg transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!selectedFile} // Tombol disable jika belum ada file
+            className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-10 rounded-md shadow-lg text-lg transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Upload
           </button>
+
+          {/* Tombol Unduh Template CSV */}
+          <button
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href =
+                'https://tzobbcxigvioytvlsote.supabase.co/storage/v1/object/public/tracer-study/template/csvUploadTemplate.csv';
+              link.download = 'csvUploadTemplate.csv'; // Nama file saat diunduh
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-10 rounded-md shadow-lg text-lg transition duration-300 transform hover:scale-105"
+          >
+            Unduh Template CSV
+          </button>
         </div>
+
       </div>
     </div>
   );

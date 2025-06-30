@@ -10,13 +10,14 @@ function DashboardPage() {
   const [cardData, setCardData] = React.useState([]);
   const [graphData, setgraphData] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [tahunLulusFilter, setTahunLulusFilter] = React.useState('');
-  const [statusAlumniFilter, setStatusAlumniFilter] = React.useState('');
+  // const [tahunLulusFilter, setTahunLulusFilter] = React.useState('');
+  // const [statusAlumniOptionssAlumniFilter, setStatusAlumniFilter] = React.useState('');
 
   React.useEffect(() => {
     getStatistikAlumni().then(({ data }) => {
       setCardData(data);
       setLoading(false);
+      console.log(data);
     });
   }, []);
 
@@ -26,24 +27,6 @@ function DashboardPage() {
       setLoading(false);
     });
   }, []);
-
-  // Opsi untuk filter Tahun Lulus
-  const tahunLulusOptions = [
-    { label: '2025', value: '2025' },
-    { label: '2024', value: '2024' },
-    { label: '2023', value: '2023' },
-    { label: '2022', value: '2022' },
-    { label: '2021', value: '2021' },
-  ];
-
-  // Opsi untuk filter Status AlumniPage
-  const statusAlumniOptions = [
-    { label: 'Melanjutkan Pendidikan', value: 'melanjutkan' },
-    { label: 'Bekerja', value: 'bekerja' },
-    { label: 'Wirausaha', value: 'wirausaha' },
-    { label: 'Belum / Tidak Bekerja', value: 'belum_bekerja' },
-    { label: 'Gap Year', value: 'gap_year' },
-  ];
 
   const handleTahunLulusChange = (e) => {
     setTahunLulusFilter(e.target.value);

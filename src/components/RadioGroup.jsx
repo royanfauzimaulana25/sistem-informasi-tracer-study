@@ -12,7 +12,7 @@ function RadioGroup({ label, name, options, selectedValue, onChange }) {
               type="radio"
               name={name}
               value={option.value}
-              checked={selectedValue === option.value}
+              checked={selectedValue == option.value}
               onChange={onChange}
               className="form-radio h-4 w-4 text-teal-600 border-gray-300 focus:ring-teal-500"
             />

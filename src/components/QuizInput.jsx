@@ -1,13 +1,4 @@
-// React Modules
 import React from 'react';
-import PropTypes from 'prop-types';
-import useInput from '../hooks/useInput';
-
-// Icons
-
-// Asset
-
-// Components
 import FormInput from '../components/FormInput'; // Impor komponen FormInput
 import NotificationPopup from '../components/NotificationPopup'; // Impor komponen popup
 
@@ -31,9 +22,6 @@ function QuizInput({ onCheckAlumni }) {
   // Popup Components
   const handleClosePopup = () => {
     setIsPopupOpen(false);
-    // Di sini Anda bisa menambahkan logika lain setelah popup ditutup,
-    // misalnya mengarahkan pengguna ke halaman lain.
-    console.log('Popup ditutup dan tombol Lanjutkan diklik!');
   };
 
   const handleSubmit = (event) => {

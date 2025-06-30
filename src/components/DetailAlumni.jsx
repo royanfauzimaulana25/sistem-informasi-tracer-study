@@ -1,72 +1,44 @@
 // src/components/AlumniDetailPopup.jsx
 import React from 'react';
-import { FaTimes } from 'react-icons/fa'; // Ikon silang untuk menutup
+import { FaTimes } from 'react-icons/fa';
 
 function DetailAlumni({ isOpen, onClose, alumniData }) {
-  if (!isOpen || !alumniData) {
-    return null; // Tidak merender apa-apa jika popup tidak terbuka atau data tidak ada
-  }
+  if (!isOpen || !alumniData) return null;
 
-  // Fungsi pembantu untuk menampilkan status "Belum Mengisi Tracer Study" jika data kosong
-  const displayValue = (value) => {
-    return value || 'Belum Mengisi Tracer Study';
-  };
+  const displayValue = (value) => value || 'Belum Mengisi Tracer Study';
 
   return (
-    // Overlay latar belakang semi-transparan
-    <div className="fixed inset-0  bg-[#00000059] flex items-center justify-center z-50 p-10">
-      {/* Container utama popup */}
+    <div className="fixed inset-0 bg-[#00000059] flex items-center justify-center z-50 p-10">
       <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full relative">
 
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">Detail Alumni</h2>
 
-        {/* Detail Informasi Umum */}
+        {/* Informasi Umum */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold text-gray-700">Detail Informasi Umum</h3>
-            {/* Contoh badge, bisa disesuaikan logikanya */}
             <span className="bg-teal-100 text-teal-600 px-3 py-1 rounded-full text-sm font-medium">
-              {displayValue(alumniData.statusKuesioner)}
+              {alumniData.tracer_data?.is_filled ? 'Sudah Mengisi Tracer Study' : 'Belum Mengisi Tracer Study'}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
-            <div>
-              <p className="font-medium">NIK</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.nik)}</p>
-            </div>
-            <div>
-              <p className="font-medium">NIS</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.nis)}</p>
-            </div>
-            <div>
-              <p className="font-medium">NISN</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.nisn)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Nama Siswa (Alumni)</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.namaSiswa)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Tahun Lulus</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.tahunLulus)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Tanggal Lahir</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.tanggalLahir)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Alamat Email</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.alamatEmail)}</p>
-            </div>
-            <div>
-              <p className="font-medium">No Telepon / HP</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.nomorTelepon)}</p>
-            </div>
-            <div className="md:col-span-2"> {/* Span 2 kolom untuk Status AlumniPage */}
-              <p className="font-medium">Status Alumni</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.statusSiswa)}</p>
-            </div>
+            {[
+              ['NIK', alumniData.personal_data?.nik],
+              ['NIS', alumniData.personal_data?.nis],
+              ['NISN', alumniData.personal_data?.nisn],
+              ['Nama Siswa (Alumni)', alumniData.personal_data?.nama_siswa],
+              ['Tahun Lulus', alumniData.personal_data?.tahun_lulus],
+              ['Tanggal Lahir', alumniData.personal_data?.tanggal_lahir],
+              ['Alamat Email', alumniData.personal_data?.alamat_email],
+              ['No Telepon / HP', alumniData.personal_data?.no_telepon],
+              ['Status Alumni', alumniData.tracer_data?.status],
+            ].map(([label, value], i) => (
+              <div key={i} className={label === 'Status Alumni' ? 'md:col-span-2' : ''}>
+                <p className="font-medium">{label}</p>
+                <p className="text-gray-900 font-semibold">{displayValue(value)}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -74,45 +46,52 @@ function DetailAlumni({ isOpen, onClose, alumniData }) {
         <div className="mb-8">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Detail Pendidikan</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
-            <div>
-              <p className="font-medium">Perguruan Tinggi</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.perguruanTinggi)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Program Studi</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.programStudi)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Sumber Pembiayaan</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.sumberPembiayaan)}</p>
-            </div>
+            {[
+              ['Perguruan Tinggi', alumniData.pendidikan_data?.perguruan_tinggi],
+              ['Program Studi', alumniData.pendidikan_data?.program_studi],
+              ['Sumber Pembiayaan', alumniData.pendidikan_data?.sumber_biaya],
+              ['Tahun Masuk', alumniData.pendidikan_data?.tahun_masuk],
+            ].map(([label, value], i) => (
+              <div key={i}>
+                <p className="font-medium">{label}</p>
+                <p className="text-gray-900 font-semibold">{displayValue(value)}</p>
+              </div>
+            ))}
+
             <div>
               <p className="font-medium">Bukti Kuliah</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.buktiKuliah)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Tahun Masuk</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.tahunMasukKuliah)}</p>
+              <p className="text-gray-900 font-semibold">
+                {alumniData.pendidikan_data?.bukti_kuliah ? (
+                  <a
+                    href={alumniData.pendidikan_data.bukti_kuliah}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Lihat File
+                  </a>
+                ) : (
+                  'Belum Isi Tracer'
+                )}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Detail Kuesioner Kualitas Sekolah */}
+        {/* Detail Kuesioner */}
         <div className="mb-8">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Detail Kuesioner Kualitas Sekolah</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-gray-700">
-            <div>
-              <p className="font-medium">Kualitas Pendidikan</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.kualitasPendidikan)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Kualitas Kegiatan Ekstrakurikuler</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.kualitasKegiatanEkstrakurikuler)}</p>
-            </div>
-            <div>
-              <p className="font-medium">Kualitas Fasilitas Sekolah</p>
-              <p className="text-gray-900 font-semibold">{displayValue(alumniData.kualitasFasilitasSekolah)}</p>
-            </div>
+            {alumniData.questionnaire_data?.length > 0 ? (
+              alumniData.questionnaire_data.map((item, index) => (
+                <div key={index}>
+                  <p className="font-medium">{item.questionnaire}</p>
+                  <p className="text-gray-900 font-semibold">{displayValue(item.answer)}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-900 font-semibold col-span-3">Belum Mengisi Kuesioner</p>
+            )}
           </div>
         </div>
 

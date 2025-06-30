@@ -53,8 +53,8 @@ function App() {
           <Routes>
             <Route path='/' element={<HomePage />} />
             <Route path='/questionnaire' element={<QuizPage />} />
-            <Route path='/questionnaire/:id' element={<QuizDetailPage />} />
-            <Route path='/*' element={<LoginPage />} />
+            <Route path='/questionnaire/detail/:id' element={<QuizDetailPage />} />
+            <Route path='/*' element={<LoginPage onLoginSuccess={onLoginSuccess} />} />
           </Routes>
         </main>
       </div>

@@ -1,54 +1,42 @@
 // src/pages/AlumniDirectoryPage.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import DropdownFilter from '../components/DropdownFilter';
-import { FaUserPlus, FaSearch, FaUserCircle, FaUpload } from 'react-icons/fa'; // Import FaUpload
+import { FaUserPlus, FaUpload } from 'react-icons/fa'; // Import FaUpload
 import DetailAlumni from '../components/DetailAlumni';
 import AddAlumniPopup from '../components/AddAlumniPopup';
-import UploadCsvPopup from '../components/UploadCSVPopup'; // Impor popup Upload CSV
+import UploadCsvPopup from '../components/UploadCSVPopup';
+import TableAlumni from '../components/TableAlumni';
+import AlumniSearch from '../components/AlumniSearch';
+import ButtonActions from '../components/ButtonActions';
+import { getAllAlumni, createAlumni } from '../utils/api'; // Impor popup Upload CSV
 
 function AlumniPage() {
+  // State Data
+  const [alumni, setAlumni] = useState([]);
+
+  // State PopUp
+  const [isAddAlumniPopupOpen, setIsAddAlumniPopupOpen] = useState(false);
+  const [isUploadCsvPopupOpen, setIsUploadCsvPopupOpen] = useState(false);
+  const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
+
+  // State Filter and Pagination
   const [tahunLulusFilter, setTahunLulusFilter] = useState('');
   const [statusAlumniFilter, setStatusAlumniFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
+  const [itemsPerPage] = useState(10);
   const [selectedAlumni, setSelectedAlumni] = useState(null);
 
-  const [isAddAlumniPopupOpen, setIsAddAlumniPopupOpen] = useState(false);
+  // State Conditional Rendering
+  const [loading, setLoading] = useState(true);
 
-  // --- State baru untuk UploadCsvPopup ---
-  const [isUploadCsvPopupOpen, setIsUploadCsvPopupOpen] = useState(false);
-
-  // Data dummy yang diperbanyak dan diperkaya dengan detail
-  const [allAlumniData, setAllAlumniData] = useState(() => {
-    const data = [];
-    for (let i = 1; i <= 50; i++) {
-      data.push({
-        no: i,
-        nis: `NIS${1000 + i}`,
-        nisn: `NISN${20000 + i}`,
-        tanggalLahir: `2002-0${(i % 12) + 1}-0${(i % 28) + 1}`,
-        nik: `NIK${300000 + i}`,
-        namaSiswa: `AlumniPage ${i}`,
-        tahunLulus: 2019 + (i % 3),
-        statusSiswa: ['Lanjut Pendidikan', 'Bekerja', 'Wirausaha'][i % 3],
-        statusKuesioner: (i % 2 === 0) ? 'Sudah Mengisi' : 'Belum Mengisi',
-        alamatEmail: `alumni${i}@example.com`,
-        nomorTelepon: `+62 ${81234567890 + i}`,
-        perguruanTinggi: (i % 3 === 0) ? 'Universitas Lampung' : '',
-        programStudi: (i % 3 === 0) ? 'Sistem Informasi' : '',
-        sumberPembiayaan: (i % 3 === 0) ? 'Beasiswa KIP' : '',
-        buktiKuliah: (i % 3 === 0) ? 'Ada' : '',
-        tahunMasukKuliah: (i % 3 === 0) ? '2022' : '',
-        kualitasPendidikan: ['Sangat Bagus', 'Bagus', 'Cukup'][i % 3],
-        kualitasKegiatanEkstrakurikuler: ['Sangat Bagus', 'Bagus', 'Cukup'][i % 3],
-        kualitasFasilitasSekolah: ['Sangat Bagus', 'Bagus', 'Cukup'][i % 3],
-      });
-    }
-    return data;
-  });
+  // Fetch Alumni Data
+  useEffect(() => {
+    getAllAlumni().then(({ data }) => {
+      setAlumni(data);
+      setLoading(false);
+    });
+  }, []);
 
   // Opsi filter (sama seperti sebelumnya)
   const tahunLulusOptions = [
@@ -63,35 +51,133 @@ function AlumniPage() {
   ];
 
   const filteredAlumni = useMemo(() => {
-    return allAlumniData.filter((alumni) => {
-      const matchTahunLulus = tahunLulusFilter ? alumni.tahunLulus === parseInt(tahunLulusFilter) : true;
+    return alumni.filter((alumnus) => {
+      const matchTahunLulus = tahunLulusFilter ? alumnus.personal_data.tahun_lulus === parseInt(tahunLulusFilter) : true;
       const matchStatusAlumni = statusAlumniFilter ?
-        (statusAlumniFilter === 'melanjutkan' && alumni.statusSiswa === 'Lanjut Pendidikan') ||
-        (statusAlumniFilter === 'bekerja' && alumni.statusSiswa === 'Bekerja') ||
-        (statusAlumniFilter === 'wirausaha' && alumni.statusSiswa === 'Wirausaha') ||
-        (statusAlumniFilter === 'belum_bekerja' && alumni.statusSiswa === 'Belum / Tidak Bekerja') ||
-        (statusAlumniFilter === 'gap_year' && alumni.statusSiswa === 'Gap Year') : true;
+        (statusAlumniFilter === 'melanjutkan' &&  alumnus.tracer_data.status == 'Melanjutkan Pendidikan') ||
+        (statusAlumniFilter === 'bekerja' && alumnus.tracer_data.status  == 'Bekerja') ||
+        (statusAlumniFilter === 'wirausaha' && alumnus.tracer_data.status  == 'Wirausaha') ||
+        (statusAlumniFilter === 'belum_bekerja' && alumnus.tracer_data.status  == 'Belum / Tidak Bekerja') ||
+        (statusAlumniFilter === 'gap_year' && alumnus.tracer_data.status  == 'Gap Year') : true;
 
       // Logika pencarian NISN / Nama
       const matchSearchQuery = searchQuery.toLowerCase();
-      const matchNISN = alumni.nisn.toLowerCase().includes(matchSearchQuery);
-      const matchNama = alumni.namaSiswa.toLowerCase().includes(matchSearchQuery);
+      const matchNISN = alumnus.personal_data.nisn.toLowerCase().includes(matchSearchQuery);
+      const matchNama = alumnus.personal_data.nama_siswa.toLowerCase().includes(matchSearchQuery);
       const matchSearch = (matchSearchQuery === '') || matchNISN || matchNama;
 
       return matchTahunLulus && matchStatusAlumni && matchSearch;
     });
-  }, [allAlumniData, tahunLulusFilter, statusAlumniFilter, searchQuery]);
+  }, [alumni, tahunLulusFilter, statusAlumniFilter, searchQuery]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredAlumni.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredAlumni.length / itemsPerPage);
 
+  // EVENT HANDLER
+  // Event Handler for Pagination
   const handlePageChange = (pageNumber) => {
     if (pageNumber < 1 || pageNumber > totalPages) return;
     setCurrentPage(pageNumber);
   };
 
+  // Fungsi untuk mengontrol AddAlumniPopup
+  const handleOpenAddAlumniPopup = () => {
+    setIsAddAlumniPopupOpen(true);
+  };
+  const handleCloseAddAlumniPopup = () => {
+    setIsAddAlumniPopupOpen(false);
+
+  };
+
+  const handleAddAlumniSubmit = async (newAlumniData) => {
+    console.log('Data AlumniPage Baru Diterima:', newAlumniData);
+
+    const { error } = await createAlumni(newAlumniData);
+
+    if (error) {
+      alert('Gagal menambahkan data alumni.');
+      console.error('Error saat menambahkan data alumni:', error);
+    } else {
+      alert('Data alumni berhasil ditambahkan!');
+      window.location.reload();
+    }
+
+    handleCloseAddAlumniPopup();
+  };
+
+
+  // Fungsi untuk mengontrol UploadCsvPopup
+  const handleOpenUploadCsvPopup = () => {
+    setIsUploadCsvPopupOpen(true);
+  };
+  const handleCloseUploadCsvPopup = () => {
+    setIsUploadCsvPopupOpen(false);
+  };
+
+  const handleCsvUploadSubmit = async (csvParsedData) => {
+    console.log('Data CSV yang di-upload dan di-parse:', csvParsedData);
+
+    if (!csvParsedData || csvParsedData.length === 0) {
+      alert('Tidak ada data yang ditemukan di file CSV.');
+      return;
+    }
+
+    // Utility untuk membersihkan setiap nilai dari tanda kutip ganda dan spasi
+    const cleanValue = (value) =>
+      typeof value === 'string' ? value.trim().replace(/^"+|"+$/g, '') : value;
+
+    const newAlumniEntries = csvParsedData.map((item) => ({
+      nis: cleanValue(item.nis || ''),
+      nisn: cleanValue(item.nisn || ''),
+      nik: cleanValue(item.nik || ''),
+      nama_siswa: cleanValue(item['nama_siswa'] || ''),
+      tanggal_lahir: cleanValue(item['tanggal_lahir'] || ''),
+      tahun_lulus: parseInt(cleanValue(item['tahun_lulus'])) || '',
+    }));
+
+    console.log('Data alumni baru (setelah dibersihkan):', newAlumniEntries);
+
+    try {
+      for (const alumni of newAlumniEntries) {
+        console.log('Menyimpan data alumni:', alumni);
+        const { error } = await createAlumni(alumni);
+        if (error) {
+          console.error('Gagal menyimpan data:', alumni, error);
+          alert(`Gagal menyimpan data untuk ${alumni.nama_siswa}`);
+          continue;
+        }
+      }
+
+      alert(`${newAlumniEntries.length} data alumni berhasil di-import!`);
+      window.location.reload(); // aktifkan jika ingin refresh halaman
+    } catch (err) {
+      console.error('Terjadi kesalahan saat import CSV:', err);
+      alert('Terjadi kesalahan saat mengimpor data.');
+    }
+
+    handleCloseUploadCsvPopup();
+  };
+
+  // Fungsi untuk membuka/menutup Popup Detail
+  const handleDetailClick = (alumni) => {
+    setSelectedAlumni(alumni);
+    setIsDetailPopupOpen(true);
+  };
+  const handleCloseDetailPopup = () => {
+    setIsDetailPopupOpen(false);
+    setSelectedAlumni(null);
+  };
+
+  // Handler untuk perubahan input pencarian
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset ke halaman pertama saat melakukan pencarian baru
+  };
+
+  // HELPER FUNCTION
+  // Fungsi Render Page Number
   const renderPageNumbers = () => {
     const pageNumbers = [];
     const maxPageButtons = 5;
@@ -115,107 +201,36 @@ function AlumniPage() {
     return pageNumbers;
   };
 
-  // Fungsi untuk mengontrol AddAlumniPopup
-  const handleOpenAddAlumniPopup = () => {
-    setIsAddAlumniPopupOpen(true);
-  };
-  const handleCloseAddAlumniPopup = () => {
-    setIsAddAlumniPopupOpen(false);
-  };
-  const handleAddAlumniSubmit = (newAlumniData) => {
-    console.log('Data AlumniPage Baru Diterima:', newAlumniData);
-    alert('Data alumni berhasil ditambahkan (simulasi)!');
-    setAllAlumniData((prevData) => [
-      ...prevData,
-      {
-        no: prevData.length > 0 ? Math.max(...prevData.map((a) => a.no)) + 1 : 1,
-        ...newAlumniData,
-        statusSiswa: 'Belum Diketahui',
-        statusKuesioner: 'Belum Mengisi',
-      }
-    ]);
-    handleCloseAddAlumniPopup();
-  };
-
-  // Fungsi untuk mengontrol UploadCsvPopup
-  const handleOpenUploadCsvPopup = () => {
-    setIsUploadCsvPopupOpen(true);
-  };
-  const handleCloseUploadCsvPopup = () => {
-    setIsUploadCsvPopupOpen(false);
-  };
-  const handleCsvUploadSubmit = (csvParsedData) => {
-    console.log('Data CSV yang di-upload dan di-parse:', csvParsedData);
-    alert(`${csvParsedData.length} data alumni berhasil di-import dari CSV (simulasi)!`);
-
-    // Tambahkan data dari CSV ke state allAlumniData
-    // Anda mungkin perlu menyesuaikan pemetaan header CSV ke properti alumniData
-    const newAlumniEntries = csvParsedData.map((item, index) => ({
-      no: allAlumniData.length + index + 1, // Beri nomor unik
-      nis: item.NIS || '',
-      nisn: item.NISN || '',
-      tanggalLahir: item['Tanggal Lahir'] || '', // Hati-hati dengan spasi di header CSV
-      nik: item.NIK || '',
-      namaSiswa: item['Nama Siswa'] || '',
-      tahunLulus: parseInt(item['Tahun Lulus']) || '',
-      statusSiswa: item['Status Siswa'] || 'Belum Diketahui',
-      statusKuesioner: item['Status Kuesioner'] || 'Belum Mengisi',
-      alamatEmail: item['Alamat Email'] || '',
-      nomorTelepon: item['No Telepon'] || '', // Sesuaikan nama kolom CSV
-      // Tambahkan mapping untuk field lainnya
-    }));
-    setAllAlumniData((prevData) => [...prevData, ...newAlumniEntries]);
-
-    handleCloseUploadCsvPopup();
-  };
-
-  // Fungsi untuk membuka/menutup Popup Detail
-  const handleDetailClick = (alumni) => {
-    setSelectedAlumni(alumni);
-    setIsDetailPopupOpen(true);
-  };
-  const handleCloseDetailPopup = () => {
-    setIsDetailPopupOpen(false);
-    setSelectedAlumni(null);
-  };
-
-  // Handler untuk perubahan input pencarian
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset ke halaman pertama saat melakukan pencarian baru
-  };
+  // Conditional Rendering
+  if (loading) {
+    return (
+      <p>Loading..</p>
+    );
+  }
 
   return (
     <div className="min-h-screen ">
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <button
-            onClick={handleOpenAddAlumniPopup}
+
+          {/* Tombol Tambah Alumni Single */}
+          <ButtonActions
             className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md shadow-lg transition duration-300 flex items-center justify-center space-x-2"
-          >
-            <FaUserPlus className="text-xl" />
-            <span>Tambah Data AlumniPage</span>
-          </button>
-          {/* Tombol baru untuk Upload CSV */}
-          <button
-            onClick={handleOpenUploadCsvPopup}
+            onClickHandler={handleOpenAddAlumniPopup}
+            icon={<FaUserPlus className="text-xl" />}
+            title="Tambah Data Alumni"
+          />
+
+          {/* Tombol Upload CSV */}
+          <ButtonActions
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-md shadow-lg transition duration-300 flex items-center justify-center space-x-2"
-          >
-            <FaUpload className="text-xl" />
-            <span>Upload CSV</span>
-          </button>
+            onClickHandler={handleOpenUploadCsvPopup}
+            icon={<FaUpload className="text-xl" />}
+            title="Upload CSV"
+          />
 
           {/* Input Pencarian */}
-          <div className="relative flex-grow flex items-center">
-            <input
-              type="text"
-              placeholder="Cari AlumniPage (NISN / Nama)"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full py-3 pl-4 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 transition duration-200"
-            />
-            <FaSearch className="absolute right-3 text-gray-400" />
-          </div>
+          <AlumniSearch searchQuery={searchQuery} onHandleSearchChange={handleSearchChange} />
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -225,87 +240,23 @@ function AlumniPage() {
               label="Tahun lulus"
               options={tahunLulusOptions}
               selectedValue={tahunLulusFilter}
-              onChange={null}
+              onChange={(e) => setTahunLulusFilter(e.target.value)}
               className="w-full md:w-1/3"
             />
             <DropdownFilter
-              label="Status AlumniPage"
+              label="Status Alumni"
               options={statusAlumniOptions}
               selectedValue={statusAlumniFilter}
-              onChange={null}
+              onChange={(e) => setStatusAlumniFilter(e.target.value)}
               className="w-full md:w-1/3"
             />
           </div>
         </div>
 
         {/* Tabel Data AlumniPage */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  No
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nama Siswa
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tahun Lulus
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status Siswa
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status Kuesioner
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentItems.length > 0 ? (
-                  currentItems.map((alumni) => (
-                    <tr key={alumni.no}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {alumni.no}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {alumni.namaSiswa}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {alumni.tahunLulus}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {alumni.statusSiswa}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {alumni.statusKuesioner}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
-                        <button
-                          onClick={() => handleDetailClick(alumni)}
-                          className="bg-teal-100 text-teal-600 hover:bg-teal-200 py-2 px-4 rounded-md text-xs font-semibold transition duration-200"
-                        >
-                        Detail
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                    Tidak ada data alumni yang ditemukan.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TableAlumni currentItems={currentItems} onDetailClick={handleDetailClick}/>
 
-        {/* Kontrol Pagination */}
+        {/* Kontrol Pagination Table */}
         {filteredAlumni.length > itemsPerPage && (
           <div className="flex justify-between items-center mt-6">
             <button
@@ -336,14 +287,14 @@ function AlumniPage() {
         alumniData={selectedAlumni}
       />
 
-      {/* Menggunakan AddAlumniPopup yang benar */}
+      {/* Menggunakan AddAlumniPopup  */}
       <AddAlumniPopup
         isOpen={isAddAlumniPopupOpen}
         onClose={handleCloseAddAlumniPopup}
         onSubmit={handleAddAlumniSubmit}
       />
 
-      {/* Menggunakan UploadCsvPopup yang benar */}
+      {/* Menggunakan UploadCsvPopup */}
       <UploadCsvPopup
         isOpen={isUploadCsvPopupOpen}
         onClose={handleCloseUploadCsvPopup}

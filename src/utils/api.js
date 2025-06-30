@@ -11,7 +11,7 @@
 import axios from 'axios';
 
 // Base URL untuk Tracer Study SMA API
-const BASE_URL = 'http://192.168.6.126:8000';
+const BASE_URL = 'backend-system-tracer-study-development.up.railway.app';
 
 /**
  * Instance Axios yang dikonfigurasi dengan base URL dan header default

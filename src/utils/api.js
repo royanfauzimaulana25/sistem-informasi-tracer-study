@@ -11,7 +11,7 @@
 import axios from 'axios';
 
 // Base URL untuk Tracer Study SMA API
-const BASE_URL = 'https://backend-system-tracer-study-development.up.railway.app/';
+const BASE_URL = 'backend-system-tracer-study-development.up.railway.app';
 
 /**
  * Instance Axios yang dikonfigurasi dengan base URL dan header default
@@ -115,11 +115,12 @@ async function checkAlumni({ nisn, nis, nik, tanggal_lahir }) {
  *   console.log('Data tracer berhasil dikirim:', result.data);
  * }
  */
-async function submitTracer(data, buktiKuliah) {
+async function submitTracer(data, buktiKuliah = null) {
   try {
     const formData = new FormData();
     if (buktiKuliah){
       formData.append('bukti_kuliah', buktiKuliah);
+      // formData.append('detail_pendidikan', buktiKuliah);
     }
 
     // Convert data object to JSON string and append to form data

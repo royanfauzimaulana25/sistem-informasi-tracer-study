@@ -42,7 +42,7 @@ function TableAlumni({ currentItems, onDetailClick }) {
                     {alumni.personal_data.tahun_lulus}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    {alumni.tracer_data.status  ? 'Sudah Mengisi' : 'Belum Mengisi' }
+                    {alumni.tracer_data.status  ? alumni.tracer_data.status  : 'Belum Mengisi' }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {alumni.tracer_data.is_filled ? 'Sudah Mengisi' : 'Belum Mengisi' }

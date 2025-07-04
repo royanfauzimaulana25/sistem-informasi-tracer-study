@@ -97,6 +97,20 @@ function QuizDetailInput({ idAlumni }) {
     }));
   };
 
+  const handleStatusChange = (event) => {
+    if (event.target.value !== 'PEND') {
+      setDetailPendidikan({
+        id_perguruan_tinggi: '',
+        id_program_studi: '',
+        tahun_masuk: '',
+        id_sumber_biaya: '',
+      });
+      setBuktiKuliahFile(null);
+      setBuktiKuliahFileName('');
+    }
+    setStatusAlumni(event.target.value);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -104,10 +118,12 @@ function QuizDetailInput({ idAlumni }) {
       id_alumni: idAlumni,
       personal_data: { ...personalData },
       status: statusAlumni,
-      detail_pendidikan : { ...detailPendidikan },
+      detail_pendidikan : detailPendidikan.id_perguruan_tinggi ? { ...detailPendidikan } : null,
       kuesioner: questionerAnswers
       // Add other necessary data for submission
     };
+
+    console.log(submissionData);
 
     const { error } = await submitTracer(submissionData, buktiKuliahFile);
 
@@ -146,7 +162,7 @@ function QuizDetailInput({ idAlumni }) {
               name="status"
               options={statusOptions}
               selectedValue={statusAlumni}
-              onChange={(event) => setStatusAlumni(event.target.value)}
+              onChange={handleStatusChange}
               required
             />
 

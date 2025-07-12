@@ -7,6 +7,9 @@ function QuizPage() {
   const navigate = useNavigate();
   async function onCheckAlumni({ nisn, nis, nik, tanggal_lahir }) {
     const { error, data } = await checkAlumni({ nisn, nis, nik, tanggal_lahir });
+    if (data == null) {
+      alert('Data tidak ditemukan');
+    }
 
     if (!error & !data.is_filled) {
       console.log(data);
@@ -15,7 +18,7 @@ function QuizPage() {
 
     if (!error & data.is_filled) {
       alert('Anda sudah mengisi tracer study');
-      navigate(`/`);
+      navigate('/');
     }
   }
 

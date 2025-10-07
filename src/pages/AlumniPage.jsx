@@ -8,7 +8,7 @@ import UploadCsvPopup from '../components/UploadCSVPopup';
 import TableAlumni from '../components/TableAlumni';
 import AlumniSearch from '../components/AlumniSearch';
 import ButtonActions from '../components/ButtonActions';
-import { getAllAlumni, createAlumni } from '../utils/api'; // Impor popup Upload CSV
+import { getAllAlumni, createAlumni, deleteAlumni } from '../utils/api'; // Impor popup Upload CSV
 
 function AlumniPage() {
   // State Data
@@ -105,6 +105,22 @@ function AlumniPage() {
     }
 
     handleCloseAddAlumniPopup();
+  };
+
+  const handleDeleteClick = async (id_alumni) => {
+    // Show a confirmation dialog before deleting
+    if (window.confirm('Apakah Anda yakin ingin menghapus data alumni ini? Tindakan ini tidak dapat dibatalkan.')) {
+      const { error } = await deleteAlumni(id_alumni);
+
+      if (error) {
+        alert(`Gagal menghapus data: ${error}`);
+      } else {
+        // If successful, update the state to remove the alumni from the list
+        // This avoids a full page reload and gives instant feedback
+        setAlumni(prevAlumni => prevAlumni.filter(a => a.personal_data.id_alumni !== id_alumni));
+        alert('Data alumni berhasil dihapus.');
+      }
+    }
   };
 
 
@@ -254,7 +270,7 @@ function AlumniPage() {
         </div>
 
         {/* Tabel Data AlumniPage */}
-        <TableAlumni currentItems={currentItems} onDetailClick={handleDetailClick}/>
+        <TableAlumni currentItems={currentItems} onDetailClick={handleDetailClick}  onDeleteClick={handleDeleteClick} />
 
         {/* Kontrol Pagination Table */}
         {filteredAlumni.length > itemsPerPage && (

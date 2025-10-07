@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-function TableAlumni({ currentItems, onDetailClick }) {
+function TableAlumni({ currentItems, onDetailClick, onDeleteClick }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="overflow-x-auto">
@@ -53,6 +53,12 @@ function TableAlumni({ currentItems, onDetailClick }) {
                       className="bg-teal-100 text-teal-600 hover:bg-teal-200 py-2 px-4 rounded-md text-xs font-semibold transition duration-200"
                     >
                     Detail
+                    </button>
+                    <button
+                      onClick={() => onDeleteClick(alumni.personal_data.id_alumni)}
+                      className="bg-red-100 text-red-600 hover:bg-red-200 py-2 px-4 rounded-md text-xs font-semibold transition duration-200"
+                    >
+                      Hapus
                     </button>
                   </td>
                 </tr>

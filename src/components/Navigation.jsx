@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 // Icons
 
 // Asset
-import Logo from '/Logo-SMAN4.png';
+import Logo from '/Logo SMA YP Unila - Horizontal.png';
 import { FaUserCircle } from 'react-icons/fa';
 
 // Components
@@ -17,7 +17,7 @@ function Navigation({ user, logout }) {
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <img src={Logo} alt="Logo SMA Negeri 4 Bandar Lampung" className="h-auto" />
+          <img src={Logo} alt="Logo SMA YP UNILA Bandar Lampung" className="h-25" />
         </div>
 
         {/* Navigasi */}

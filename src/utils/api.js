@@ -11,7 +11,8 @@
 import axios from 'axios';
 
 // Base URL untuk Tracer Study SMA API
-const BASE_URL = 'https://backend-system-tracer-study-development.up.railway.app';
+// const BASE_URL = 'https://backend-system-tracer-study-development.up.railway.app';
+const BASE_URL = 'http://0.0.0.0:8000';
 
 /**
  * Instance Axios yang dikonfigurasi dengan base URL dan header default
@@ -376,6 +377,40 @@ function putUserInfo(userInfo) {
   return localStorage.setItem('username', userInfo);
 }
 
+/**
+ * Menghapus data alumni berdasarkan ID.
+ * Fungsi ini mengirimkan request DELETE ke endpoint /alumni/{id_alumni}.
+ * @param {string} id_alumni - ID unik dari alumni yang akan dihapus.
+ * @returns {Promise<Object>} Object dengan property error (boolean) dan data (Object|null).
+ * @example
+ * const result = await deleteAlumni('uuid-alumni-123');
+ * if (!result.error) {
+ * console.log('Alumni berhasil dihapus:', result.data.message);
+ * } else {
+ * console.error(result.message);
+ * }
+ */
+async function deleteAlumni(id_alumni) {
+  try {
+    // Menggunakan instance axios 'api' yang sudah dikonfigurasi
+    const response = await api.delete(`/alumni/${id_alumni}`);
+
+    // Mengembalikan data dengan format yang konsisten
+    return { error: false, data: response.data };
+  } catch (error) {
+    // Menggunakan penanganan error yang lebih detail dan konsisten
+    let errorMessage = 'Terjadi kesalahan saat menghapus data alumni.';
+
+    // Mengambil pesan error spesifik dari backend jika ada (misal: "Alumni not found")
+    if (error.response && error.response.data && error.response.data.detail) {
+      errorMessage = error.response.data.detail;
+    }
+
+    console.error('Error deleting alumni:', error);
+    return { error: true, message: errorMessage, data: null };
+  }
+}
+
 export {
   putUserInfo,
   login,
@@ -393,4 +428,5 @@ export {
   getTracerStatus,
   getProgramStudi,
   getAllAlumni,
+  deleteAlumni,
 };

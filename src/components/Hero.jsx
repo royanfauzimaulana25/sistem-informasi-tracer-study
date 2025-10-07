@@ -16,7 +16,7 @@ function Hero() {
           <p className='mt-6 text-lg text-gray-600 max-w-lg mx-auto md:mx-0'>
             Kami hadir sebagai jembatan penghubung antara alumni, sekolah, dan dunia kerja,
             menyediakan wadah informasi yang dinamis untuk memantau jejak langkah kesuksesan lulusan,
-            memperkuat jaringan alumni, serta memberikan inspirasi dan arahan bagi siswa-siswi SMAN 4
+            memperkuat jaringan alumni, serta memberikan inspirasi dan arahan bagi siswa-siswi SMA YP UNILA
             Bandar Lampung dalam merencanakan masa depan gemilang mereka.
           </p>
           <button className='mt-10 bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-md shadow-xl text-lg transition duration-300'>
